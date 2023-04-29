@@ -21,11 +21,11 @@
 	<modules>
 		<module>sportser-server-discovery</module>
 		<module>sportser-zuul-server</module>
-		<module>sportser-heart-rate-sensor-data-collector</module>
-		<module>sportser-heart-rate-sensor-data-worker</module>
+		<module>heart-rates-collector-service</module>
+		<module>heart-rates-analyzer-service</module>
 		<module>sportser-emergency-notification-agent</module>
-		<module>sportser-notification-channel-manager</module>
-		<module>sportser-user-profile-server</module>
+		<module>emergency-notification-agent-service</module>
+		<module>user-manager-service</module>
 	</modules>
 	<dependencies>
 		<dependency>

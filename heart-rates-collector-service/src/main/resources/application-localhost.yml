@@ -1,0 +1,20 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  kafka:
+    bootstrap-servers: 172.31.253.254:9092
+    producer:
+      group-id: hr-data
+      topic: hr-collector
+    consumer:
+      group-id: hr-data
+      topic: hr-collector
+    retry:
+      topic:
+        attempts: 3
+
+rabbit:
+  host: localhost
