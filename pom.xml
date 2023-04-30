@@ -26,7 +26,8 @@
 		<module>sportser-emergency-notification-agent</module>
 		<module>emergency-notification-agent-service</module>
 		<module>user-manager-service</module>
-	</modules>
+        <module>common-dto</module>
+    </modules>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

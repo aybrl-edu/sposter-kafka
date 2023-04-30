@@ -5,9 +5,17 @@ eureka:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/sportser
-    username: root
-    password: toto
+    url: jdbc:postgresql://172.31.253.254:5432/sportser
+    username: postgres
+    password: root
   jpa:
     hibernate:
       use-new-id-generator-mappings: false
+
+  kafka:
+    bootstrap-servers: 172.31.253.254:9092
+    producer:
+      topic: coach-presence-topic
+    retry:
+      topic:
+        attempts: 3

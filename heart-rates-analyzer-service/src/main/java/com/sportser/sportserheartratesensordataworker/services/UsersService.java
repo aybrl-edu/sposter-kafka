@@ -1,10 +1,12 @@
 package com.sportser.sportserheartratesensordataworker.services;
 
-import com.sportser.sportserheartratesensordataworker.dto.HeartRateUserDto;
+import com.sportser.common.dto.HeartRateUserDto;
 import com.sportser.sportserheartratesensordataworker.dto.UserDto;
 import com.sportser.sportserheartratesensordataworker.model.Users;
 import com.sportser.sportserheartratesensordataworker.repositories.UsersRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,45 +14,56 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 @Slf4j
 public class UsersService {
-    private final UsersRepository usersRepository;
-    private final WebClient webClient;
-    private final Environment environment;
-    private RabbitMQProducerService rabbitMQProducerService;
+    @Autowired
+    private UsersRepository usersRepository;
 
-    public UsersService(UsersRepository usersRepository, WebClient webClient, Environment environment, RabbitMQProducerService rabbitMQProducerService) {
-        this.usersRepository = usersRepository;
-        this.webClient = webClient;
-        this.environment = environment;
-        this.rabbitMQProducerService = rabbitMQProducerService;
-    }
+    @Autowired
+    private WebClient webClient;
+    @Value("${address.user-profile}")
+    private String ip;
+
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
 
     public Boolean checkSubscribing(String email) {
-        String ipAddress = environment.getProperty("address.user-profile");
-        return webClient.get().uri("http://" + ipAddress + ":8085/user/checkSubscribing?email=" + email)
+        return webClient
+                .get()
+                .uri(String.format("http://%s:8085/user/checkSubscribing?email=%s", ip, email))
                 .retrieve()
-                .bodyToMono(Boolean.class).block();
+                .bodyToMono(Boolean.class)
+                .block();
     }
 
-    public Boolean checkEmergency(Integer value, UserDto userDto) {
+    public Boolean checkEmergency(Integer value, Integer age) {
         // in sportive activity
-        Integer limit = 222 - userDto.getAge();
+        Integer limit = 222 - age;
         return value > limit;
     }
 
     public UserDto getUser(String email) {
-        String ipAddress = environment.getProperty("address.user-profile");
-        return webClient.get().uri("http://" + ipAddress + ":8085/user/" + email).retrieve().bodyToMono(UserDto.class).block();
+        return webClient
+                .get()
+                .uri(String.format("http://%s:8085/user/%s", ip, email))
+                .retrieve()
+                .bodyToMono(UserDto.class)
+                .block();
     }
 
     public Users analyseData(HeartRateUserDto heartRateUserDto) {
         if (heartRateUserDto.getUserEmail() != null && heartRateUserDto.getUserEmail().length() > 0) {
-            if (checkSubscribing(heartRateUserDto.getUserEmail())) {
+            if (checkSubscribing(heartRateUserDto.getUserEmail()) != null
+                && checkSubscribing(heartRateUserDto.getUserEmail())) {
+
                 UserDto userDto = getUser(heartRateUserDto.getUserEmail());
-                if (checkEmergency(heartRateUserDto.getHeartRate(), userDto)) {
-                    rabbitMQProducerService.sendMessage(heartRateUserDto);
+                if (checkEmergency(heartRateUserDto.getHeartRate(), userDto.getAge())) {
+                    kafkaProducerService.sendMessage(heartRateUserDto);
                 }
             }
-            return usersRepository.save(new Users(heartRateUserDto.getUserEmail(), heartRateUserDto.getHeartRate(), heartRateUserDto.getTime()));
+            Users user = new Users();
+            user.setEmail(heartRateUserDto.getUserEmail());
+            user.setHeartRate(heartRateUserDto.getHeartRate());
+            user.setTime(heartRateUserDto.getTime());
+            return usersRepository.save(user);
         }
         return null;
     }

@@ -6,20 +6,26 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
+import java.security.KeyStore
 import java.util.*
+import javax.net.ssl.KeyManagerFactory
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
 
 class MQTTManager(val context: Context) {
 
 
     private val _message = MutableLiveData<String>()
     var message : LiveData<String> = _message
-    private var host = "tcp://172.31.253.175:1883"
+    //private var host = "tcp://d2522f149d2245758166a4c38c84d7bd.s2.eu.hivemq.cloud:8883"
+    private var host = "tcp://172.31.253.175:1883:1883"
     private var clientId = "kotlin-client"
 
     private var client =
         MqttAndroidClient(context, host, clientId + id(context))
     private var uniqueID: String? = null
     private val PREF_UNIQUE_ID = "PREF_UNIQUE_ID"
+
 
     fun setCallback(callback: MqttCallbackExtended?){
         client.setCallback(callback)
@@ -45,12 +51,16 @@ class MQTTManager(val context: Context) {
     }
 
     fun connect() {
+        println("HELOO MQTT")
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = false
         mqttConnectOptions.isCleanSession = true
+        mqttConnectOptions.userName = "aybrl"
+        mqttConnectOptions.password = "Look2010@iam".toCharArray()
         try {
             client.connect(mqttConnectOptions, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
+                    println("mqtt client connected")
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -85,11 +95,11 @@ class MQTTManager(val context: Context) {
         try {
             client.subscribe(topic, 0, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
-                    Log.w("Mqtt", "Subscription : " + topic)
+                    Log.w("Mqtt", "Subscription : $topic")
                 }
 
-                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                    Log.w("Mqtt", "Subscription fail!")
+                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable?) {
+                    println("something bad happened")
                 }
             })
         } catch (ex: MqttException) {

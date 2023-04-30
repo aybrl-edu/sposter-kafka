@@ -81,7 +81,7 @@ values (34, 'Ange', 'Losbie', 'ange.losbie@gmail.com', 183, 71, true, 48);
 insert into users (id_user, firstname, lastname, email, height, weight, subscribing, age)
 values (35, 'Christen', 'Kytter', 'christen.kytter@gmail.com', 177, 68, true, 50);
 
-create table coachs
+create table coaches
 (
     id_coach  int,
     firstname varchar(250),
@@ -101,11 +101,11 @@ create table coaching
     foreign key (id_coach) references coachs (id_coach)
 );
 
-insert into coachs (id_coach, firstname, lastname, email)
+insert into coaches (id_coach, firstname, lastname, email)
 values (1, 'Alec', 'Rudkin', 'alec.rudkin@gmail.com');
-insert into coachs (id_coach, firstname, lastname, email)
+insert into coaches (id_coach, firstname, lastname, email)
 values (2, 'Heywood', 'Fortune', 'heywood.fortune@gmail.com');
-insert into coachs (id_coach, firstname, lastname, email)
+insert into coaches (id_coach, firstname, lastname, email)
 values (3, 'Jobye', 'Howler', 'jobye.howler@gmail.com');
 
 insert into coaching (id_user, id_coach)

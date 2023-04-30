@@ -1,4 +1,5 @@
-package com.sportser.sportserheartratesensordatacollector.config;
+package com.sportser.sportserheartratesensordataworker.config;
+
 
 import com.sportser.common.dto.HeartRateUserDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +19,12 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
+    @Value("${spring.kafka.consumer.topic}")
+    private String kafkaTopicConsume;
+
     @Value("${spring.kafka.producer.topic}")
-    private String kafkaTopicProduce;
+    private String kafkaTopicEmergency;
+
 
     @Bean
     public ProducerFactory<String, HeartRateUserDto> producerFactory() {
@@ -37,6 +42,12 @@ public class KafkaConfig {
 
     @Bean
     public String getKafkaTopicConsume() {
-        return kafkaTopicProduce;
+        return kafkaTopicConsume;
     }
+
+    @Bean
+    public String getKafkaTopicEmergency() {
+        return kafkaTopicEmergency;
+    }
+
 }

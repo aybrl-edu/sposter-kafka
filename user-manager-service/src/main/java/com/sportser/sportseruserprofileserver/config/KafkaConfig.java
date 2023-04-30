@@ -1,5 +1,7 @@
-package com.sportser.sportserheartratesensordatacollector.config;
+package com.sportser.sportseruserprofileserver.config;
 
+
+import com.sportser.common.dto.CoachPresence;
 import com.sportser.common.dto.HeartRateUserDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,10 +21,11 @@ public class KafkaConfig {
     private String bootstrapServers;
 
     @Value("${spring.kafka.producer.topic}")
-    private String kafkaTopicProduce;
+    private String kafkaTopicCoachPresence;
+
 
     @Bean
-    public ProducerFactory<String, HeartRateUserDto> producerFactory() {
+    public ProducerFactory<String, CoachPresence> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(org.apache.kafka.clients.producer.ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
@@ -31,12 +34,13 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, HeartRateUserDto> kafkaTemplate() {
+    public KafkaTemplate<String, CoachPresence> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    public String getKafkaTopicConsume() {
-        return kafkaTopicProduce;
+    public String getKafkaTopicCoachPresence() {
+        return kafkaTopicCoachPresence;
     }
+
 }

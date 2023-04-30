@@ -8,13 +8,7 @@ spring:
     bootstrap-servers: 172.31.253.254:9092
     producer:
       group-id: hr-data
-      topic: hr-collector
-    consumer:
-      group-id: hr-data
-      topic: hr-collector
+      topic: heart-rates-topic
     retry:
       topic:
         attempts: 3
-
-rabbit:
-  host: localhost

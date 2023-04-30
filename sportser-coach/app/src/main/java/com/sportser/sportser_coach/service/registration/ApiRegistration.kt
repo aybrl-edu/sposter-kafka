@@ -5,13 +5,14 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.DELETE
-import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 object ApiRegistration {
 
-    private const val base_url = "http://172.31.253.175:9004/epi-sport/api/notification/"
+    private const val base_url = "http://172.20.10.12:8085/coach/"
 //    private const val base_url ="http://172.31.240.15:9004/epi-sport/api/notification/"
     private var apiRegistrationInterface: ApiRegistrationInterface? = null
 
@@ -36,11 +37,16 @@ object ApiRegistration {
     }
 
     interface ApiRegistrationInterface {
-        @GET("registration/{email}")
-        fun getRegistration(@Path(value = "email") email: String): Call<String>
+        @POST("present")
+        fun getRegistration(@Body registrationRequest: RegistrationRequest): Call<String>
 
         @DELETE("registration/{email}")
         fun deleteRegistration(@Path(value = "email") email: String): Call<String>
     }
 
 }
+
+data class RegistrationRequest(
+    val coachMail: String,
+    val isPresent: Boolean
+)

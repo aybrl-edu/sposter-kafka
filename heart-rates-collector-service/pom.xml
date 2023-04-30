@@ -60,6 +60,12 @@
             <artifactId>amqp-client</artifactId>
             <version>5.14.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.sportser</groupId>
+            <artifactId>sportser-common-dto</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

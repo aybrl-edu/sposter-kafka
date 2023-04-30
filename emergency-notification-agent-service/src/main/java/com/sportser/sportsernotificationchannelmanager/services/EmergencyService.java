@@ -1,13 +1,14 @@
 package com.sportser.sportsernotificationchannelmanager.services;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
-import com.sportser.sportsernotificationchannelmanager.dto.EmergencyDto;
+import com.sportser.common.dto.HeartRateUserDto;
 import com.sportser.sportsernotificationchannelmanager.redis.model.Emergency;
 import com.sportser.sportsernotificationchannelmanager.redis.model.Registration;
 import com.sportser.sportsernotificationchannelmanager.redis.repo.EmergencyRepository;
 import com.sportser.sportsernotificationchannelmanager.redis.repo.RegistrationRepository;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -28,38 +29,49 @@ public class EmergencyService {
         this.mqttService = mqttService;
     }
 
-    public String registration(String email){
-        Registration coachRegistration = new Registration(email,new Timestamp(System.currentTimeMillis())+"");
+    public void registration(String email){
+        Registration coachRegistration = new Registration(email, new Timestamp(System.currentTimeMillis()).toString());
         //Saving the registration in cache
         registrationRepository.save(coachRegistration);
         //Checking if there are messages directed to this given coach in cache and sending them
         Optional<Emergency> coachEmergency = emergencyRepository.findById(email);
         if(coachEmergency.isPresent()){
+            System.out.println("Coach Present!");
             for(String message : coachEmergency.get().getMessages()) {
-                mqttService.publishMessage(coachRegistration.getTopic(),message);
+                mqttService.publishMessage("emergency-topic", message);
             }
             emergencyRepository.delete(coachEmergency.get());
         }
-        return "Successfully registered";
     }
 
-    public void receiveEmergency(EmergencyDto emergencyDto){
-        String message = "Le client "+emergencyDto.getFirstNameUser()+" a atteint une fréquence cardiaque de "+emergencyDto.getHeartRate()+" à "+emergencyDto.getTime();
-        Optional<Registration> coachRegistration = registrationRepository.findById(emergencyDto.getEmailCoach());
+    public void receiveEmergency(HeartRateUserDto emergencyDto){
+        String messageStr = String.format("Le client %s  a atteint une fréquence cardiaque de %s à %s",
+                emergencyDto.getUserEmail(),
+                emergencyDto.getHeartRate(),
+                emergencyDto.getTime());
+
+
+        // @todo : get coach from db
+        String coachMail = "duane.mariet@gmail.com";
+
+        String message = new MQTTMessage(coachMail, messageStr).toString();
+
+        Optional<Registration> coachRegistration = registrationRepository.findById(coachMail);
         // The user is logged in and his token is in cache, sending the message
         if(coachRegistration.isPresent()){
-            mqttService.publishMessage(coachRegistration.get().getTopic(),message);
+            mqttService.publishMessage("emergency-topic", message);
         }
         // The user is not logged in, saving the message in cache
         else {
-            Optional<Emergency> coachEmergency = emergencyRepository.findById(emergencyDto.getEmailCoach());
+            Optional<Emergency> coachEmergency = emergencyRepository.findById(coachMail);
             //An instance of emergency already exists for this coach
             if(coachEmergency.isPresent()){
                 coachEmergency.get().getMessages().add(message);
             }
             //Creating an emergency list for this coach
             else {
-                Emergency e = new Emergency(emergencyDto.getEmailCoach());
+                System.out.println("Creating emergency in cache");
+                Emergency e = new Emergency(coachMail);
                 e.getMessages().add(message);
                 emergencyRepository.save(e);
             }
@@ -83,4 +95,15 @@ public class EmergencyService {
             }
         }
     }
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Component
+class MQTTMessage {
+    private String coachMail;
+    private String message;
 }

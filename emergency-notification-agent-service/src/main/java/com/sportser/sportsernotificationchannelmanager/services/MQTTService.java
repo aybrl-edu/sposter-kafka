@@ -19,6 +19,7 @@ public class MQTTService {
             mqttMessage.setQos(0);
             mqttMessage.setRetained(false);
             mqttClient.publish(topic, mqttMessage);
+            System.out.printf("message published in : %s%n", topic);
         }catch(org.eclipse.paho.client.mqttv3.MqttException e){
             log.info("Message publishing failed for topic "+topic);
         }

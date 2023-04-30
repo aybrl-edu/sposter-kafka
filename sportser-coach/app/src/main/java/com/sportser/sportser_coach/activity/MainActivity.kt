@@ -21,6 +21,9 @@ import com.sportser.sportser_coach.viewmodel.MainPageViewModel
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
 import org.eclipse.paho.client.mqttv3.MqttMessage
+import java.io.BufferedInputStream
+import java.security.KeyStore
+import java.security.cert.CertificateFactory
 
 class MainActivity : AppCompatActivity() {
 
@@ -57,6 +60,7 @@ class MainActivity : AppCompatActivity() {
     fun connexion(view: View){
         emailText = findViewById(R.id.email)
         email = emailText.text.toString()
+        print(email)
         Log.w(TAG, "connexion " + email)
         if(email.isNotEmpty()){
             mqttClient.connect()

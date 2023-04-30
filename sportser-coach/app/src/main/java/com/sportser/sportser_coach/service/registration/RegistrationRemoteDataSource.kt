@@ -11,8 +11,10 @@ class RegistrationRemoteDataSource(apiRegistration: ApiRegistration): Registrati
     private var callRegistration: Call<String>? = null
 
     override fun sendRegistration(callback: OperationCallback<String>, email: String) {
-        print("Send registration with " + email)
-        callRegistration = services.getRegistration(email)
+        println("Send registration with " + email)
+        val request = RegistrationRequest(email, true)
+        callRegistration = services.getRegistration(request)
+
         callRegistration?.enqueue(object: Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 if(response.body() != null){
@@ -29,8 +31,10 @@ class RegistrationRemoteDataSource(apiRegistration: ApiRegistration): Registrati
     }
 
     override fun deleteRegistration(callback: OperationCallback<String>, email: String) {
-        print("Delete registration with " + email)
-        callRegistration = services.deleteRegistration(email)
+        println("Delete registration with " + email)
+        val request = RegistrationRequest(email, false)
+        callRegistration = services.getRegistration(request)
+
         callRegistration?.enqueue(object: Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 if(response.body() != null){
