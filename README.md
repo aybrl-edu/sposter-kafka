@@ -24,14 +24,14 @@ curl --location 'http://localhost:9004/epi-sport/api/sensor/hr' \
 
 ```
 
-### Pour l'envoie des données de présence de prof
+### Pour l'envoie des données de présence du coach
 
 ```
-curl --location 'http://localhost:3030/api/v1/auth/authenticate' \
+curl --location 'http://localhost:8085/coach/present' \
 --header 'Content-Type: application/json' \
---data '{
-    "username" : "alexandre.brenner",
-    "password" : "alexandre.brenner"
+--data-raw '{
+    "coachMail" : "duane.mariet@gmail.com",
+    "isPresent" : "true"
 }'
 
 ```
