@@ -1,5 +1,6 @@
 package com.sportser.sportsernotificationchannelmanager.services;
 
+import com.sportser.common.dto.CoachDTO;
 import com.sportser.common.dto.HeartRateUserDto;
 import com.sportser.sportsernotificationchannelmanager.redis.model.Emergency;
 import com.sportser.sportsernotificationchannelmanager.redis.model.Registration;
@@ -7,9 +8,14 @@ import com.sportser.sportsernotificationchannelmanager.redis.repo.EmergencyRepos
 import com.sportser.sportsernotificationchannelmanager.redis.repo.RegistrationRepository;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -19,9 +25,16 @@ import java.util.Optional;
 @Slf4j
 public class EmergencyService {
 
+    @Autowired
+    private WebClient webClient;
+
     private final EmergencyRepository emergencyRepository;
     private final RegistrationRepository registrationRepository;
     private final MQTTService mqttService;
+
+
+    @Value("${address.user-profile}")
+    private String ip;
 
     public EmergencyService(EmergencyRepository usersRepository, RegistrationRepository registrationRepository, MQTTService mqttService) {
         this.emergencyRepository= usersRepository;
@@ -44,6 +57,15 @@ public class EmergencyService {
         }
     }
 
+    public CoachDTO getCoachFromUserEmail(String email) {
+        return webClient
+                .get()
+                .uri(String.format("http://%s:8085/coach/by-user-email/%s", ip, email))
+                .retrieve()
+                .bodyToMono(CoachDTO.class)
+                .block();
+    }
+
     public void receiveEmergency(HeartRateUserDto emergencyDto){
         String messageStr = String.format("Le client %s  a atteint une fréquence cardiaque de %s à %s",
                 emergencyDto.getUserEmail(),
@@ -51,8 +73,8 @@ public class EmergencyService {
                 emergencyDto.getTime());
 
 
-        // @todo : get coach from db
-        String coachMail = "duane.mariet@gmail.com";
+        CoachDTO coach = getCoachFromUserEmail(emergencyDto.getUserEmail());
+        String coachMail = coach.getEmail();
 
         String message = new MQTTMessage(coachMail, messageStr).toString();
 
@@ -106,4 +128,15 @@ public class EmergencyService {
 class MQTTMessage {
     private String coachMail;
     private String message;
+}
+
+
+@Configuration
+class WebClientConfig {
+
+    @Bean
+    public WebClient webClient() {
+        return WebClient.builder()
+                .build();
+    }
 }

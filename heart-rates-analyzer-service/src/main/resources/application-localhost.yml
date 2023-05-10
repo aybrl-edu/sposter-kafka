@@ -15,10 +15,9 @@ spring:
   kafka:
     bootstrap-servers: 172.31.253.254:9092
     producer:
-      group-id: hr-data-analyzer-prod
       topic: emergency-data-topic
     consumer:
-      group-id: hr-data-analyzer
+      group-id: hr-data-analyzer-01
       topic: heart-rates-topic
     retry:
       topic:

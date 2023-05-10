@@ -7,7 +7,6 @@ import com.sportser.sportserheartratesensordataworker.repositories.UsersReposito
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -51,10 +50,12 @@ public class UsersService {
 
     public Users analyseData(HeartRateUserDto heartRateUserDto) {
         if (heartRateUserDto.getUserEmail() != null && heartRateUserDto.getUserEmail().length() > 0) {
-            if (checkSubscribing(heartRateUserDto.getUserEmail()) != null
-                && checkSubscribing(heartRateUserDto.getUserEmail())) {
 
+            Boolean subscribing = checkSubscribing(heartRateUserDto.getUserEmail());
+
+            if (subscribing != null && subscribing) {
                 UserDto userDto = getUser(heartRateUserDto.getUserEmail());
+                System.out.println(userDto.getAge());
                 if (checkEmergency(heartRateUserDto.getHeartRate(), userDto.getAge())) {
                     kafkaProducerService.sendMessage(heartRateUserDto);
                 }

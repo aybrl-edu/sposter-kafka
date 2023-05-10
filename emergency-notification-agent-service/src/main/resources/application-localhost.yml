@@ -7,7 +7,7 @@ spring:
   kafka:
     bootstrap-servers: 172.31.253.254:9092
     consumer:
-      group-id: emergency-notification-agent
+      group-id: emergency-notification-agent-02
 
     retry:
       topic:
@@ -22,3 +22,6 @@ app:
 redis:
   host: 172.31.253.254
   port: 6379
+
+address:
+  user-profile: localhost
