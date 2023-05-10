@@ -23,7 +23,6 @@
 		<module>sportser-zuul-server</module>
 		<module>heart-rates-collector-service</module>
 		<module>heart-rates-analyzer-service</module>
-		<module>sportser-emergency-notification-agent</module>
 		<module>emergency-notification-agent-service</module>
 		<module>user-manager-service</module>
         <module>common-dto</module>
